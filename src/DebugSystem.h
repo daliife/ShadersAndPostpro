@@ -27,6 +27,8 @@ public:
 	//set picking ray
 	void setPickingRay(int mouse_x, int mouse_y, int screen_width, int screen_height);
 
+	int fx_mode_;
+
 private:
 	//bools to draw or not
 	bool draw_grid_;
@@ -64,7 +66,7 @@ private:
 	Shader* icon_shader_;
 
 	//imGUI
-	bool show_imGUI_ = false;
+	bool show_imGUI_ = true;
 	void updateimGUI_(float dt);
 
 	//picking

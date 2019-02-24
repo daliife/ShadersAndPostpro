@@ -18,6 +18,8 @@ GraphicsSystem::~GraphicsSystem() {
 //set initial state of graphics system
 void GraphicsSystem::init(int window_width, int window_height, std::string assets_folder) {
 
+	fx_mode_ = 0;
+
 	screen_background_color = lm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     updateMainViewport(window_width, window_height);
     
@@ -67,7 +69,6 @@ void GraphicsSystem::update(float dt) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	resetShaderAndMaterial_();
-
 	for (auto &mesh : ECS.getAllComponents<Mesh>()) {
 		renderMeshComponent_(mesh);
 	}
@@ -76,7 +77,6 @@ void GraphicsSystem::update(float dt) {
 	bindAndClearScreen_();
 
 	resetShaderAndMaterial_();
-
 	for (auto &mesh : ECS.getAllComponents<Mesh>()) {
 		renderMeshComponent_(mesh);
 	}
@@ -96,12 +96,12 @@ void GraphicsSystem::update(float dt) {
 	//	}
 	//}
 
-	glViewport(0,0, (viewport_width_ / 2), (viewport_height_ / 2));
+	glViewport(0,0, (viewport_width_), (viewport_height_));
 	useShader(screen_space_shader_);
 	screen_space_shader_->setTexture(U_SCREEN_TEXTURE, frame_.color_textures[0], 0);
+	screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
 	geometries_[screen_space_geom_].render();
 	glViewport(0, 0, viewport_width_, viewport_height_);
-
 	glEnable(GL_DEPTH_TEST);
 
 }

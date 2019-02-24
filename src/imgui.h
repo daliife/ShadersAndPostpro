@@ -548,7 +548,8 @@ namespace ImGui
     
     // Clipping
     IMGUI_API void          PushClipRect(const ImVec2& clip_rect_min, const ImVec2& clip_rect_max, bool intersect_with_current_clip_rect);
-    IMGUI_API void          PopClipRect();
+	IMGUI_API void			AddSpace(float x, float y);
+	IMGUI_API void          PopClipRect();
 
     // Focus, Activation
     // (Prefer using "SetItemDefaultFocus()" over "if (IsWindowAppearing()) SetScrollHereY()" when applicable to signify "this is the default item")

@@ -114,8 +114,10 @@ void Game::update(float dt) {
 	script_system_.update(dt);
 
 	//render
+	int fxMode = debug_system_.fx_mode_;
 	graphics_system_.update(dt);
-    
+	graphics_system_.updateFxMode(fxMode);
+
 	//gui
 	gui_system_.update(dt);
 
@@ -123,6 +125,7 @@ void Game::update(float dt) {
 	debug_system_.update(dt);
    
 }
+
 //update game viewports
 void Game::update_viewports(int window_width, int window_height) {
 	window_width_ = window_width;
@@ -135,7 +138,6 @@ void Game::update_viewports(int window_width, int window_height) {
 
 	graphics_system_.updateMainViewport(window_width_, window_height_);
 }
-
 
 int Game::createFreeCamera_() {
 	int ent_player = ECS.createEntity("PlayerFree");
@@ -217,4 +219,3 @@ int Game::createPlayer_(float aspect, ControlSystem& sys) {
 
 	return ent_player;
 }
-

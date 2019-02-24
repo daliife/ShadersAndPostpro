@@ -35,6 +35,8 @@ public:
 
 	//lights update
 	bool needUpdateLights = true;
+
+	void updateFxMode(int new_id) { if(new_id != fx_mode_) fx_mode_ = new_id; }
     
 private:
     //resources
@@ -83,6 +85,9 @@ private:
     void renderMeshComponent_(Mesh& comp);
     void renderEnvironment_();
     
+	//Pospo FX mode
+	int fx_mode_;
+
 	//AABB
 	void setGeometryAABB_(Geometry& geom, std::vector<GLfloat>& vertices);
 	AABB transformAABB_(const AABB& aabb, const lm::mat4& transform);

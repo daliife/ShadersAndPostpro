@@ -3519,6 +3519,13 @@ void ImGui::PushClipRect(const ImVec2& clip_rect_min, const ImVec2& clip_rect_ma
     window->ClipRect = window->DrawList->_ClipRectStack.back();
 }
 
+void ImGui::AddSpace(float x, float y) {
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(x, y));
+	ImGui::Spacing();
+	ImGui::PopStyleVar(1);
+}
+
 void ImGui::PopClipRect()
 {
     ImGuiWindow* window = GetCurrentWindow();

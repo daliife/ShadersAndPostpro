@@ -23,6 +23,7 @@ enum UniformID {
 	U_USE_REFLECTION_MAP,
 	U_NUM_LIGHTS,
 	U_SCREEN_TEXTURE,
+	U_POSTPO_MODE,
 	UNIFORMS_COUNT
 };
 
@@ -44,7 +45,8 @@ const std::unordered_map<std::string, UniformID> uniform_string2id_ = {
 	{ "u_skybox", U_SKYBOX },
 	{ "u_use_reflection_map", U_USE_REFLECTION_MAP },
 	{ "u_num_lights", U_NUM_LIGHTS },
-	{ "u_screen_texture", U_SCREEN_TEXTURE }
+	{ "u_screen_texture", U_SCREEN_TEXTURE },
+	{ "u_postpo_mode", U_POSTPO_MODE }
 };
 
 

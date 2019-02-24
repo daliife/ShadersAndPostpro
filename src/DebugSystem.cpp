@@ -242,7 +242,6 @@ void imGuiRenderTransformNode(TransformNode& trans) {
 	}
 }
 
-
 //called at the end of DebugSystem::update()
 void DebugSystem::updateimGUI_(float dt) {
 
@@ -253,9 +252,6 @@ void DebugSystem::updateimGUI_(float dt) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
-		//Demo window
-		//ImGui::ShowDemoWindow();
 
 		//get input
 		ImGuiIO &io = ImGui::GetIO();
@@ -269,101 +265,64 @@ void DebugSystem::updateimGUI_(float dt) {
 			can_fire_picking_ray_ = true;
 
 		//open window
-		ImGui::SetNextWindowSize(ImVec2(400, 200));
+		ImGui::SetNextWindowSize(ImVec2(400, 450));
 		ImGui::SetNextWindowBgAlpha(1.0);
-		ImGui::Begin("Scene", &show_imGUI_);
+		ImGui::Begin("FX Panel", &show_imGUI_);
 
-		//Tell imGUI to display variables of the camera
-		//get camera and its transform
-		Camera& cam = ECS.getComponentInArray<Camera>(ECS.main_camera);
-		Transform& cam_transform = ECS.getComponentFromEntity<Transform>(cam.owner);
-
-		//Create an unfoldable tree node called 'Camera'
-		if (ImGui::TreeNode("Camera")) {
-			//create temporary arrays with position and direction data
-			float cam_pos_array[3] = { cam.position.x, cam.position.y, cam.position.z };
-			float cam_dir_array[3] = { cam.forward.x, cam.forward.y, cam.forward.z };
-
-			//create imGUI components that allow us to change the values when click-dragging
-			ImGui::DragFloat3("Position", cam_pos_array);
-			ImGui::DragFloat3("Direction", cam_dir_array);
-
-			//use values of temporary arrays to set real values (in case user changes)
-			cam.position = lm::vec3(cam_pos_array[0], cam_pos_array[1], cam_pos_array[2]);
-			cam_transform.position(cam.position);
-			cam.forward = lm::vec3(cam_dir_array[0], cam_dir_array[1], cam_dir_array[2]).normalize();
+		//DROPDOWN SELECTOR
+		ImGui::Text("Select fx mode to show.");
+		ImGui::AddSpace(0, 10);
+		const char* items[] = { "B&W", "Color Correction", "Posterize", "Dithering" };
+		static const char* current_item = items[0];
+		static int id_item;  
+		if (ImGui::BeginCombo("FX", current_item)) {
+			for (int n = 0; n < IM_ARRAYSIZE(items); n++) {
+				bool is_selected = (current_item == items[n]); 
+				if (ImGui::Selectable(items[n], is_selected)) {
+					current_item = items[n];
+					id_item = n;
+					fx_mode_ = n;
+				}
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::AddSpace(0, 10);
+		ImGui::Separator();
+		ImGui::AddSpace(0, 10);	
+		//MODIFIABLE PARAMETERS
+		ImGui::Text("Update parameters in realtime.");
+		ImGui::AddSpace(0, 10);
+		ImGui::SetNextTreeNodeOpen(true);
+		if (ImGui::TreeNode("B&W")) {
+			float temp = 0.0f;
+			ImGui::SliderFloat("Gamma", &temp, 0.0f, 1.0f, ".3f", 1.0f);
 			ImGui::TreePop();
 		}
-
-		//create a tree of TransformNodes objects (defined in DebugSystem.h)
-        //which represents the current scene graph
-        
-        // 1) create a temporary array with ALL transforms
-		std::vector<TransformNode> transform_nodes;
-		auto& all_transforms = ECS.getAllComponents<Transform>();
-		for (size_t i = 0; i < all_transforms.size(); i++) {
-			TransformNode tn;
-			tn.trans_id = (int)i;
-			tn.entity_owner = all_transforms[i].owner;
-			tn.ent_name = ECS.entities[tn.entity_owner].name;
-			if (all_transforms[i].parent == -1)
-				tn.isTop = true;
-			transform_nodes.push_back(tn);
+		ImGui::AddSpace(0, 10);
+		ImGui::SetNextTreeNodeOpen(true);
+		if (ImGui::TreeNode("Color Correction")) {
+			float red = 0.0f;
+			ImGui::SliderFloat("red", &red, 0.0f, 1.0f, ".3f", 1.0f);
+			float green = 0.0f;
+			ImGui::SliderFloat("green", &green, 0.0f, 1.0f, ".3f", 1.0f);
+			float blue = 0.0f;
+			ImGui::SliderFloat("blue", &blue, 0.0f, 1.0f, ".3f", 1.0f);
+			ImGui::TreePop();
 		}
-        
-		// 2) traverse array to assign children to their parents
-		for (size_t i = 0; i < transform_nodes.size(); i++) {
-			int parent = all_transforms[i].parent;
-			if (parent != -1) {
-				transform_nodes[parent].children.push_back(transform_nodes[i]);
-			}
+		ImGui::AddSpace(0, 10);
+		ImGui::SetNextTreeNodeOpen(true);
+		if (ImGui::TreeNode("Posterize")) {
+			float ammount = 0.0f;
+			ImGui::SliderFloat("ammount", &ammount, 0.0f, 1.0f, ".3f", 1.0f);
+			ImGui::TreePop();
 		}
-        
-		// 3) create a new array with only top level nodes of transform tree
-		std::vector<TransformNode> transform_topnodes;
-		for (size_t i = 0; i < transform_nodes.size(); i++) {
-			if (transform_nodes[i].isTop)
-				transform_topnodes.push_back(transform_nodes[i]);
+		ImGui::AddSpace(0, 10);
+		ImGui::SetNextTreeNodeOpen(true);
+		if (ImGui::TreeNode("Dithering")) {
+			ImGui::TreePop();
 		}
-
-        //create 2 imGUI columns, first contains transform tree
-        //second contains selected item from picking
-		ImGui::Columns(2, "columns");
-
-		//draw all the nodes
-		for (auto& trans : transform_topnodes) {
-            //this is a recursive function (defined above)
-            //which draws a transform node (and its children)
-            //using imGUI
-			imGuiRenderTransformNode(trans);
-		}
-
-        //*** PICKING*** //
-        //general approach: Debug System has a member variable which is an entity
-        //with Ray Collider (ent_picking_ray_). When user clicks on the screen, this
-        //ray is fired into the scene.
-        //if it collides with a box collider, we read that collision here and render
-        //imGUI with the details of the collider
-        
-        //look at DebugSystem::setPickingRay_() to see how picking ray is constructed
-        
-        //next column for picking
-		ImGui::NextColumn();
-    
-		//get the pick ray first
-		Collider& pick_ray_collider = ECS.getComponentFromEntity<Collider>(ent_picking_ray_);
-
-		//is it colliding? if so, get pitcked, entity, and transform, and render imGUI text
-		int picked_entity = -1;
-		if (pick_ray_collider.colliding) {
-			//get the other collider and entity
-			Collider& picked_collider = ECS.getComponentInArray<Collider>(pick_ray_collider.other);
-			picked_entity = picked_collider.owner;
-			Transform& picked_transform = ECS.getComponentFromEntity<Transform>(picked_entity);
-			ImGui::Text("Selected entity:");
-			ImGui::TextColored(ImVec4(1, 1, 0, 1), ECS.entities[picked_collider.owner].name.c_str());
-		}
-
 
 		ImGui::End();
 
@@ -371,6 +330,7 @@ void DebugSystem::updateimGUI_(float dt) {
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
+
 }
 
 //this function takes a mouse screen point and fires a ray into the world
@@ -581,4 +541,3 @@ void DebugSystem::createGrid_() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
-
