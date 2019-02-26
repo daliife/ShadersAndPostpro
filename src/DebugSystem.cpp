@@ -265,14 +265,14 @@ void DebugSystem::updateimGUI_(float dt) {
 			can_fire_picking_ray_ = true;
 
 		//open window
-		ImGui::SetNextWindowSize(ImVec2(400, 450));
+		ImGui::SetNextWindowSize(ImVec2(400, 380));
 		ImGui::SetNextWindowBgAlpha(1.0);
-		ImGui::Begin("FX Panel", &show_imGUI_);
+		ImGui::Begin("FX Selector", &show_imGUI_);
 
 		//DROPDOWN SELECTOR
 		ImGui::Text("Select fx mode to show.");
 		ImGui::AddSpace(0, 10);
-		const char* items[] = { "B&W", "Color Correction", "Posterize", "Dithering" };
+		const char* items[] = { "Normal", "B&W", "Color Correction", "Posterize", "Dithering", "Threshold", "Invert", "Pixelize" };
 		static const char* current_item = items[0];
 		static int id_item;  
 		if (ImGui::BeginCombo("FX", current_item)) {
@@ -280,8 +280,7 @@ void DebugSystem::updateimGUI_(float dt) {
 				bool is_selected = (current_item == items[n]); 
 				if (ImGui::Selectable(items[n], is_selected)) {
 					current_item = items[n];
-					id_item = n;
-					fx_mode_ = n;
+					id_item = fx_mode_ = n;
 				}
 				if (is_selected)
 					ImGui::SetItemDefaultFocus();
@@ -291,16 +290,11 @@ void DebugSystem::updateimGUI_(float dt) {
 		ImGui::AddSpace(0, 10);
 		ImGui::Separator();
 		ImGui::AddSpace(0, 10);	
+		
 		//MODIFIABLE PARAMETERS
 		ImGui::Text("Update parameters in realtime.");
 		ImGui::AddSpace(0, 10);
-		ImGui::SetNextTreeNodeOpen(true);
-		if (ImGui::TreeNode("B&W")) {
-			float temp = 0.0f;
-			ImGui::SliderFloat("Gamma", &temp, 0.0f, 1.0f, ".3f", 1.0f);
-			ImGui::TreePop();
-		}
-		ImGui::AddSpace(0, 10);
+		
 		ImGui::SetNextTreeNodeOpen(true);
 		if (ImGui::TreeNode("Color Correction")) {
 			float red = 0.0f;
@@ -311,16 +305,23 @@ void DebugSystem::updateimGUI_(float dt) {
 			ImGui::SliderFloat("blue", &blue, 0.0f, 1.0f, ".3f", 1.0f);
 			ImGui::TreePop();
 		}
-		ImGui::AddSpace(0, 10);
 		ImGui::SetNextTreeNodeOpen(true);
 		if (ImGui::TreeNode("Posterize")) {
-			float ammount = 0.0f;
-			ImGui::SliderFloat("ammount", &ammount, 0.0f, 1.0f, ".3f", 1.0f);
+			float temp = 0.0f;
+			ImGui::SliderFloat("Gamma", &temp, 0.0f, 1.0f, ".3f", 1.0f);
+			ImGui::SliderFloat("Num Colors", &temp, 0.0f, 1.0f, ".3f", 1.0f);
 			ImGui::TreePop();
 		}
-		ImGui::AddSpace(0, 10);
 		ImGui::SetNextTreeNodeOpen(true);
-		if (ImGui::TreeNode("Dithering")) {
+		if (ImGui::TreeNode("Threshold")) {
+			float temp = 0.0f;
+			ImGui::SliderFloat("Threshold ammount", &temp, 0.0f, 1.0f, ".3f", 1.0f);
+			ImGui::TreePop();
+		}
+		ImGui::SetNextTreeNodeOpen(true);
+		if (ImGui::TreeNode("Pixelize")) {
+			float temp = 0.0f;
+			ImGui::SliderFloat("Ratio", &temp, 100.0f, 1000.0f, ".3f", 1.0f);
 			ImGui::TreePop();
 		}
 

@@ -98,8 +98,16 @@ void GraphicsSystem::update(float dt) {
 
 	glViewport(0,0, (viewport_width_), (viewport_height_));
 	useShader(screen_space_shader_);
-	screen_space_shader_->setTexture(U_SCREEN_TEXTURE, frame_.color_textures[0], 0);
+	
+	screen_space_shader_->setTexture(U_SCREEN_TEXTURE, frame_.color_textures[0], 0);	
 	screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
+
+	//Color test = new Color(0, 0, 0);
+	//screen_space_shader_->setUniform(U_COLOR_CORRECTION, test);
+	//screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
+	//screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
+
+	//screen_space_shader_->setUniform();
 	geometries_[screen_space_geom_].render();
 	glViewport(0, 0, viewport_width_, viewport_height_);
 	glEnable(GL_DEPTH_TEST);
