@@ -114,9 +114,11 @@ void Game::update(float dt) {
 	script_system_.update(dt);
 
 	//render
-	int fxMode = debug_system_.fx_mode_;
 	graphics_system_.update(dt);
-	graphics_system_.updateFxMode(fxMode);
+	graphics_system_.updateFxParameters(debug_system_.fx_mode_,
+										debug_system_.fx_rgb_,
+										debug_system_.fx_gnd_,
+										debug_system_.fx_tbp_);
 
 	//gui
 	gui_system_.update(dt);

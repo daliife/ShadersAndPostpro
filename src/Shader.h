@@ -24,6 +24,9 @@ enum UniformID {
 	U_NUM_LIGHTS,
 	U_SCREEN_TEXTURE,
 	U_POSTPO_MODE,
+	U_POSTPO_RGB,
+	U_POSTPO_GND,
+	U_POSTPO_TBP,
 	UNIFORMS_COUNT
 };
 
@@ -46,7 +49,10 @@ const std::unordered_map<std::string, UniformID> uniform_string2id_ = {
 	{ "u_use_reflection_map", U_USE_REFLECTION_MAP },
 	{ "u_num_lights", U_NUM_LIGHTS },
 	{ "u_screen_texture", U_SCREEN_TEXTURE },
-	{ "u_postpo_mode", U_POSTPO_MODE }
+	{ "u_postpo_mode", U_POSTPO_MODE },
+	{ "u_postpo_rgb", U_POSTPO_RGB },
+	{ "u_postpo_gnd", U_POSTPO_GND },
+	{ "u_postpo_tbp", U_POSTPO_TBP }
 };
 
 
@@ -71,7 +77,6 @@ public:
     void saveShaderInfoLog(GLuint obj);
     std::string log;
     
-	//
     GLuint getUniformLocation(UniformID name);
     
     bool setUniform(UniformID id, const int data);
@@ -80,7 +85,5 @@ public:
     bool setUniform(UniformID id, const lm::mat4& data);
     bool setTexture(UniformID id, GLuint tex_id, GLuint unit);
     bool setTextureCube(UniformID id, GLuint tex_id, GLuint unit);
-    
-    
+      
 };
-

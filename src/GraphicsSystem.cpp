@@ -17,9 +17,7 @@ GraphicsSystem::~GraphicsSystem() {
 
 //set initial state of graphics system
 void GraphicsSystem::init(int window_width, int window_height, std::string assets_folder) {
-
-	fx_mode_ = 0;
-
+	
 	screen_background_color = lm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     updateMainViewport(window_width, window_height);
     
@@ -101,13 +99,10 @@ void GraphicsSystem::update(float dt) {
 	
 	screen_space_shader_->setTexture(U_SCREEN_TEXTURE, frame_.color_textures[0], 0);	
 	screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
+	screen_space_shader_->setUniform(U_POSTPO_RGB, fx_rgb_);
+	screen_space_shader_->setUniform(U_POSTPO_GND, fx_gnd_);
+	screen_space_shader_->setUniform(U_POSTPO_TBP, fx_tbp_);
 
-	//Color test = new Color(0, 0, 0);
-	//screen_space_shader_->setUniform(U_COLOR_CORRECTION, test);
-	//screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
-	//screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
-
-	//screen_space_shader_->setUniform();
 	geometries_[screen_space_geom_].render();
 	glViewport(0, 0, viewport_width_, viewport_height_);
 	glEnable(GL_DEPTH_TEST);
@@ -389,6 +384,13 @@ void GraphicsSystem::setEnvironment(GLuint tex_id, int geom_id, GLuint program) 
 	environment_program_ = program;
 }
 
+void GraphicsSystem::updateFxParameters(int new_mode, lm::vec3 new_rgb, lm::vec3 new_gnd, lm::vec3 new_tbp) {
+	if (new_mode != fx_mode_) fx_mode_ = new_mode;
+	if (fx_rgb_.x != new_rgb.x || fx_rgb_.y != new_rgb.y || fx_rgb_.z != new_rgb.z) fx_rgb_ = new_rgb;
+	if (fx_gnd_.x != new_gnd.x || fx_gnd_.y != new_gnd.y || fx_gnd_.z != new_gnd.z) fx_gnd_ = new_gnd;
+	if (fx_tbp_.x != new_tbp.x || fx_tbp_.y != new_tbp.y || fx_tbp_.z != new_tbp.z) fx_tbp_ = new_tbp;
+}
+
 //
 ////********************************************
 //// Adding and creating functions
@@ -416,7 +418,6 @@ int GraphicsSystem::createMaterial() {
     materials_.emplace_back();
     return (int)materials_.size() - 1;
 }
-
 
 //create geometry from
 //returns index in geometry array with stored geometry data
@@ -536,7 +537,6 @@ AABB GraphicsSystem::transformAABB_(const AABB& aabb, const lm::mat4& transform)
 
 	return new_aabb;
 }
-
 
 //tests whether AABB or OOB is inside frustum or not, based on view_projection matrix
 bool GraphicsSystem::AABBInFrustum_(const AABB& aabb, const lm::mat4& to_clip) {

@@ -36,7 +36,7 @@ public:
 	//lights update
 	bool needUpdateLights = true;
 
-	void updateFxMode(int new_id) { if(new_id != fx_mode_) fx_mode_ = new_id; }
+	void updateFxParameters(int new_mode, lm::vec3 new_rgb, lm::vec3 new_gnd, lm::vec3 new_tbp);
     
 private:
     //resources
@@ -87,6 +87,9 @@ private:
     
 	//Pospo FX mode
 	int fx_mode_;
+	lm::vec3 fx_rgb_;
+	lm::vec3 fx_gnd_;
+	lm::vec3 fx_tbp_;
 
 	//AABB
 	void setGeometryAABB_(Geometry& geom, std::vector<GLfloat>& vertices);

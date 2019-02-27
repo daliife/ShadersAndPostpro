@@ -9,6 +9,7 @@ DebugSystem::~DebugSystem() {
 }
 
 void DebugSystem::lateInit() {
+	
 	//init booleans
 	draw_grid_ = false;
 	draw_icons_ = false;
@@ -39,6 +40,16 @@ void DebugSystem::lateInit() {
 	picking_ray.max_distance = 0.001f;
 
 	setActive(false);
+
+	fx_mode_ = 0;
+	resetFxDefaults();
+
+}
+
+void DebugSystem::resetFxDefaults() {
+	fx_rgb_ = lm::vec3(0.2126, 0.7152, 0.0722);
+	fx_gnd_ = lm::vec3(0.6, 4.0, 4.0);
+	fx_tbp_ = lm::vec3(0.45, 0.3333, 50.0);
 }
 
 //draws debug information or not
@@ -265,7 +276,7 @@ void DebugSystem::updateimGUI_(float dt) {
 			can_fire_picking_ray_ = true;
 
 		//open window
-		ImGui::SetNextWindowSize(ImVec2(400, 380));
+		ImGui::SetNextWindowSize(ImVec2(450, 480));
 		ImGui::SetNextWindowBgAlpha(1.0);
 		ImGui::Begin("FX Selector", &show_imGUI_);
 
@@ -297,34 +308,48 @@ void DebugSystem::updateimGUI_(float dt) {
 		
 		ImGui::SetNextTreeNodeOpen(true);
 		if (ImGui::TreeNode("Color Correction")) {
-			float red = 0.0f;
-			ImGui::SliderFloat("red", &red, 0.0f, 1.0f, ".3f", 1.0f);
-			float green = 0.0f;
-			ImGui::SliderFloat("green", &green, 0.0f, 1.0f, ".3f", 1.0f);
-			float blue = 0.0f;
-			ImGui::SliderFloat("blue", &blue, 0.0f, 1.0f, ".3f", 1.0f);
+			ImGui::SliderFloat("red", &fx_rgb_.x, 0.0f, 1.0f, "%.3f", 1.0f);
+			ImGui::SliderFloat("green", &fx_rgb_.y, 0.0f, 1.0f, "%.3f", 1.0f);
+			ImGui::SliderFloat("blue", &fx_rgb_.z, 0.0f, 1.0f, "%.3f", 1.0f);
 			ImGui::TreePop();
 		}
 		ImGui::SetNextTreeNodeOpen(true);
 		if (ImGui::TreeNode("Posterize")) {
-			float temp = 0.0f;
-			ImGui::SliderFloat("Gamma", &temp, 0.0f, 1.0f, ".3f", 1.0f);
-			ImGui::SliderFloat("Num Colors", &temp, 0.0f, 1.0f, ".3f", 1.0f);
+			ImGui::SliderFloat("Gamma", &fx_gnd_.x, 0.0f, 1.0f, "%.1f", 1.0f);
+			ImGui::SliderFloat("Num Colors", &fx_gnd_.y, 1.0f, 25.0f, "%.1f", 1.0f);
+			ImGui::TreePop();
+		}
+		ImGui::SetNextTreeNodeOpen(true);
+		if (ImGui::TreeNode("Dithering")) {
+			if (ImGui::Button("4x4 matrix")) {
+				fx_gnd_.z = 4.0;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("8x8 matrix")) {
+				fx_gnd_.z = 8.0;
+			}
 			ImGui::TreePop();
 		}
 		ImGui::SetNextTreeNodeOpen(true);
 		if (ImGui::TreeNode("Threshold")) {
-			float temp = 0.0f;
-			ImGui::SliderFloat("Threshold ammount", &temp, 0.0f, 1.0f, ".3f", 1.0f);
+			ImGui::SliderFloat("Threshold", &fx_tbp_.x, 0.0f, 1.0f, "%.2f", 1.0f);
+			ImGui::SliderFloat("Brightness", &fx_tbp_.y, 0.0f, 1.0f, "%.2f", 1.0f);
 			ImGui::TreePop();
 		}
 		ImGui::SetNextTreeNodeOpen(true);
 		if (ImGui::TreeNode("Pixelize")) {
-			float temp = 0.0f;
-			ImGui::SliderFloat("Ratio", &temp, 100.0f, 1000.0f, ".3f", 1.0f);
+			ImGui::SliderFloat("Ratio", &fx_tbp_.z, 10.0f, 250.0f, "%.1f", 1.0f);
 			ImGui::TreePop();
 		}
 
+		ImGui::AddSpace(0, 10);
+		ImGui::Separator();
+		ImGui::AddSpace(0, 10);
+		if (ImGui::Button("Reset to default values")) {
+			resetFxDefaults();
+		}
+		ImGui::SameLine();
+		ImGui::Text("Toggle panel with Alt + 0.");
 		ImGui::End();
 
 		// Rendering

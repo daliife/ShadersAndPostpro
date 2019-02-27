@@ -5,6 +5,9 @@ out vec4 fragColor;
 
 uniform sampler2D u_screen_texture;
 uniform int u_postpo_mode;
+uniform vec3 u_postpo_rgb;
+uniform vec3 u_postpo_gnd;
+uniform vec3 u_postpo_tbp;
 
 const int indexMatrix4x4[16] = int[](0,  8,  2,  10,
                                      12, 4,  14, 6,
@@ -19,9 +22,9 @@ const int indexMatrix8x8[64] = int[](0,  32, 8,  40, 2,  34, 10, 42,
                                      15, 47, 7,  39, 13, 45, 5,  37,
                                      63, 31, 55, 23, 61, 29, 53, 21);
 
-float indexValue(int option) {
+float indexValue(float option) {
 	int x,y;
-	if(option == 0){
+	if(option == 4.0){
 	    x = int(mod(gl_FragCoord.x, 4));
 	    y = int(mod(gl_FragCoord.y, 4));
 	    return indexMatrix4x4[(x + y * 4)] / 16.0;		
@@ -32,10 +35,10 @@ float indexValue(int option) {
 	}
 }
 
-float dither(float color) {
+float dither(float color, float option) {
     float closestColor = (color < 0.5) ? 0 : 1;
     float secondClosestColor = 1 - closestColor;
-    float d = indexValue(0);
+    float d = indexValue(option);
     float distance = abs(closestColor - color);
     return (distance < d) ? closestColor : secondClosestColor;
 }
@@ -52,35 +55,33 @@ void main(){
 	    	col = vec3(a,a,a);
 			break;
 		case 2: //Color grading FX
-			float r = 0.2126 * col.r;
-			float g = 0.7152 * col.g;
-			float b = 0.0722 * col.b;
+			float r = u_postpo_rgb.x * col.r;
+			float g = u_postpo_rgb.y * col.g;
+			float b = u_postpo_rgb.z * col.b;
 	    	col = vec3(r,g,b);
 			break;
 		case 3:  // Posterize FX
-		    float gamma = 0.6f;
-		    float numColors = 2.0;
-		  	col = pow(col, vec3(gamma));
-		  	col = col * numColors;
+		  	col = pow(col, vec3(u_postpo_gnd.x));
+		  	col = col * u_postpo_gnd.y;
 		  	col = floor(col);
-		  	col = col / numColors;
-		  	col = pow(col, vec3(1.0/gamma));
+		  	col = col / u_postpo_gnd.y;
+		  	col = pow(col, vec3(1.0/u_postpo_gnd.x));
 			break;
 		case 4: //Dithering FX
-	    	col = vec3(dither(col.x),dither(col.y),dither(col.z));
+	    	col = vec3(	dither(col.x, u_postpo_gnd.z),
+	    				dither(col.y, u_postpo_gnd.z),
+	    				dither(col.z, u_postpo_gnd.z));
 	    	break;
     	case 5: //Threshold
-    		float threshold = 0.45;
-			float bright = 0.33333 * (col.r + col.g + col.b);
-			float th = mix(0.0, 1.0, step(threshold, bright));
+			float bright = u_postpo_tbp.y * (col.r + col.g + col.b);
+			float th = mix(0.0, 1.0, step(u_postpo_tbp.x, bright));
 			col = vec3(th);
 	    	break;
 		case 6: //Invert
 			col = vec3(1.0) - col;
 			break;
 		case 7: //Pixelize
-			float mouse = 500.0;
-			vec2 pixels = vec2(0.1*mouse,0.1*mouse);
+			vec2 pixels = vec2(u_postpo_tbp.z,u_postpo_tbp.z);
 		  	vec2 p = v_uv;
 			p.x -= mod(p.x, 1.0 / pixels.x);
 			p.y -= mod(p.y, 1.0 / pixels.y);

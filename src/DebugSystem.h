@@ -27,7 +27,11 @@ public:
 	//set picking ray
 	void setPickingRay(int mouse_x, int mouse_y, int screen_width, int screen_height);
 
+	//Pospo FX mode
 	int fx_mode_;
+	lm::vec3 fx_rgb_;
+	lm::vec3 fx_gnd_;
+	lm::vec3 fx_tbp_;
 
 private:
 	//bools to draw or not
@@ -73,5 +77,8 @@ private:
 	bool can_fire_picking_ray_ = true;
 	int ent_picking_ray_;
 	
+	//fx reset
+	void resetFxDefaults();
+
 };
 
