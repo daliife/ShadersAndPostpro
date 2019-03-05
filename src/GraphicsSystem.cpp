@@ -80,23 +80,12 @@ void GraphicsSystem::update(float dt) {
 	}
 	renderEnvironment_();
 
-	//DRAW TO SCREEN
+	//Draw to screen
 	glDisable(GL_DEPTH_TEST);
-	//int cols = 2;
-	//int rows = 2;
-	//for (int i = 0; i < cols; i++) {
-	//	for (int j = 0; j < rows; j++) {
-	//		glViewport(i*(viewport_width_ / 4), j*(viewport_height_ / 4), (viewport_width_ / 4), (viewport_height_ / 4));
-	//		useShader(screen_space_shader_);
-	//		screen_space_shader_->setTexture(U_SCREEN_TEXTURE, frame_.color_textures[0], 0);
-	//		geometries_[screen_space_geom_].render();
-	//		glViewport(0, 0, viewport_width_, viewport_height_);
-	//	}
-	//}
-
 	glViewport(0,0, (viewport_width_), (viewport_height_));
 	useShader(screen_space_shader_);
 	
+	//Send all necessary uniforms
 	screen_space_shader_->setTexture(U_SCREEN_TEXTURE, frame_.color_textures[0], 0);	
 	screen_space_shader_->setUniform(U_POSTPO_MODE, fx_mode_);
 	screen_space_shader_->setUniform(U_POSTPO_RGB, fx_rgb_);

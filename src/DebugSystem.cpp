@@ -39,8 +39,10 @@ void DebugSystem::lateInit() {
 	picking_ray.direction = lm::vec3(0, 0, -1);
 	picking_ray.max_distance = 0.001f;
 
+	//Hide debug
 	setActive(false);
 
+	//FX init settings
 	fx_mode_ = 0;
 	resetFxDefaults();
 
@@ -232,8 +234,8 @@ void DebugSystem::update(float dt) {
 	}
 	glBindVertexArray(0);
 
-	//imGUI
 	updateimGUI_(dt);
+
 }
 
 // recursive function to render a transform node in imGUI
@@ -280,7 +282,7 @@ void DebugSystem::updateimGUI_(float dt) {
 		ImGui::SetNextWindowBgAlpha(1.0);
 		ImGui::Begin("FX Selector", &show_imGUI_);
 
-		//DROPDOWN SELECTOR
+		//Dropdown selector
 		ImGui::Text("Select fx mode to show.");
 		ImGui::AddSpace(0, 10);
 		const char* items[] = { "Normal", "B&W", "Color Correction", "Posterize", "Dithering", "Threshold", "Invert", "Pixelize" };
@@ -302,7 +304,7 @@ void DebugSystem::updateimGUI_(float dt) {
 		ImGui::Separator();
 		ImGui::AddSpace(0, 10);	
 		
-		//MODIFIABLE PARAMETERS
+		//Modifiable parameters
 		ImGui::Text("Update parameters in realtime.");
 		ImGui::AddSpace(0, 10);
 		
@@ -492,7 +494,6 @@ void DebugSystem::createCube_() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-//creates the debug grid for our scene
 void DebugSystem::createGrid_() {
 
 	std::vector<float> grid_vertices;
